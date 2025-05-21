@@ -1,0 +1,6 @@
+# Ignore test directories
+testdir/
+
+# Ignore test files
+new.txt
+test_ncurses.c

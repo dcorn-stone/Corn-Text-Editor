@@ -17,36 +17,47 @@ int file_or_dir(const char *path);
 
 // main function
 int main(int argc, char *file[]) {
+    
   //buffer to store the file content
   char *buffer = NULL;
+
   // initialise ncurses
   initscr();
   // check if any parameter is entered
   // if true, read the path
   if (argc > 1) {
+
     // check if the file is a directory or a file
     // if it is a file, read the file
     int target_type = file_or_dir(file[1]);
     if (target_type == 3 || target_type == 1){
+
         // readfile loads the file content into buffer
         if (readfile(file[1], &buffer) == 0){
-        // print the file content
-        printw("%s", buffer);
+
+            // print the file content
+            printw("%s", buffer);
+
         } else {
-        return -1;
+            return -1;
         }
+
     // if it is a directory, print the directory
     } else if (target_type == 2){
       printw("Target is a directory");
     }
-  // if false, enter intro page(error for now)
+
+  // if no parameters entered, enter intro page(error for now)
   } else {
     printw("No parameter entered\n");
   }
+
   // display in ncurses
   refresh();
+
   // wait for any key to be pressed
   getch();
+
   // terminate ncurses
   endwin();
   free(buffer);
@@ -56,27 +67,33 @@ int main(int argc, char *file[]) {
 
 int readfile(const char *filename, char **out_buffer) {
     FILE *textptr = NULL;
-    // Allocate an initial buffer of CHUNK_SIZE bytes.
+
+    // Allocate an initial buffer of CHUNK_SIZE bytes
     size_t total_alloc = CHUNK_SIZE;
     char *text_buffer = malloc(total_alloc);
+
+    // Handle allocation error
     if (!text_buffer) {
-        // Handle allocation error.
         printf("Memory allocation failed\n");
         return -1;
     }
-    // Initialize used length to zero.
+
+    // Initialize used length to zero
     size_t used = 0;
     
-    // Open the file.
+    // Open the file
     textptr = fopen(filename, "r");
+
+    // If the file does not exist, create an empty file
     if (textptr == NULL) {
-        // If the file does not exist, create an empty file.
         textptr = fopen(filename, "w");
         if (textptr) {
             fclose(textptr);
         }
+
         textptr = fopen(filename, "r");
-        // If it still fails, free memory and exit.
+
+        // If it still fails, free memory and exit
         if (textptr == NULL) {
             free(text_buffer);
             printf("Failed to open file\n");
@@ -84,19 +101,21 @@ int readfile(const char *filename, char **out_buffer) {
         }
     }
 
-    // Temporary buffer to read a line (or chunk) from the file.
+    // Temporary buffer to read a line (or chunk) from the file
     char line[CHUNK_SIZE];
     while (fgets(line, CHUNK_SIZE, textptr)) {
         size_t line_len = strlen(line);
 
         // Check if the total needed size (current data + new line + terminating null) exceeds the
-        // allocated space.
+        // allocated space
         if (used + line_len + 1 > total_alloc) {
-            total_alloc += CHUNK_SIZE;  // Increase by CHUNK_SIZE bytes.
+            total_alloc += CHUNK_SIZE;  // Increase by CHUNK_SIZE bytes
+
             // temporary pointer to reallocate memory
             char *tmp = realloc(text_buffer, total_alloc);
             if (tmp == NULL) {
-                // On failure, free already allocated memory and close the file.
+
+                // On failure, free already allocated memory and close the file
                 printf("Memory reallocation failed\n");
                 free(text_buffer);
                 fclose(textptr);
@@ -104,13 +123,14 @@ int readfile(const char *filename, char **out_buffer) {
             }
             text_buffer = tmp;
         }
-        // Append the new line into text_buffer at the position 'used'.
+        // Append the new line into text_buffer at the position 'used'
         strcpy(text_buffer + used, line);
         used += line_len;
     }
 
-    // Ensure the final string is null-terminated.
+    // Ensure the final string is null-terminated
     text_buffer[used] = '\0';
+
     // set the output buffer to the text_buffer
     // the pointer entered will contain the content of the file
     *out_buffer = text_buffer;
@@ -125,6 +145,7 @@ int file_or_dir(const char *path){
     errno = 0;
     if (stat(path, &path_stat) != 0) {
         if (errno == ENOENT) {
+
             // File or directory does not exist
             // return and let the readfile function create it
             return 1; 
