@@ -1,2 +1,2 @@
-# vi-imitation
-An imitation of vi the editor
+# Corn Text Editor (ctEd)
+A text editor imitating the core functions of vi
