@@ -1,7 +1,15 @@
 # Ignore test directories
 testdir/
+.vscode/
+.git/
+make/
 
 # Ignore test files
 new.txt
 test_ncurses.c
 .DS_Store
+.Clangd
+text.txt
+edit_functions.c
+edit_functions.h
+food.png
